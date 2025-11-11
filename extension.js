@@ -1,3 +1,4 @@
+import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 
@@ -7,6 +8,7 @@ import { setLogging, setLogFn, journal } from './utils.js'
 let activeWorkspaceChangedId;
 
 const WindowManager = global.get_window_manager();
+// const WorkspaceManager = global.get_workspace_manager();
 
 export default class maximizeLonleyWindow extends Extension {
     enable() {
@@ -43,25 +45,40 @@ export default class maximizeLonleyWindow extends Extension {
     }
 
     onWorkspaceChanged() {
-        journal(`Workspace Changed`);
-        let [x, y] = global.get_pointer();
-        journal(`x: ${x}`);
-        journal(`y: ${y}`);
-        let actor = global.get_stage().get_actor_at_pos(0, x, y).get_parent();
+        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            journal(`Workspace Changed`);
+            let [x, y] = global.get_pointer();
+            journal(`x: ${x}`);
+            journal(`y: ${y}`);
+            let window_actor = global.get_stage().get_actor_at_pos(Clutter.PickMode.NONE, x, y).get_parent();
 
-        journal(`actor: ${actor}`);
+            journal(`window_actor: ${window_actor}`);
 
-        if (!actor || !actor.meta_window) {
-            journal("No window found under pointer");
-            return;
-        }
+            if (!window_actor || !window_actor.meta_window) {
+                journal("No window found under pointer");
+                return;
+            }
 
-        let window = actor.get_meta_window();
+            let window = window_actor.get_meta_window();
 
-        if (window instanceof Meta.Window && window.get_window_type() === Meta.WindowType.NORMAL) {
-            journal(`WinID: ${window.get_id()}`);
-            journal(`Win Title: ${window.get_title()}`);
-            window.activate(0);
-        }
+            if (window instanceof Meta.Window && window.get_window_type() === Meta.WindowType.NORMAL) {
+                // let current_workspace = WorkspaceManager.get_active_workspace();
+                journal(`WinID: ${window.get_id()}`);
+                journal(`Win Title: ${window.get_title()}`);
+
+                if (window.has_pointer()) {
+                    journal(`Window Has Pointer`);
+                    window.activate(0);
+                    journal(`Window Activated`);
+                }
+
+                // if (!window.has_focus()){
+                //     journal(`Window not Focused`);
+                //     window.activate(0);
+                // } else {
+                //     journal(`Window already focused`);
+                // }
+            }
+        });
     }
 }
