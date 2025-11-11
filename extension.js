@@ -47,11 +47,20 @@ export default class maximizeLonleyWindow extends Extension {
         let [x, y] = global.get_pointer();
         journal(`x: ${x}`);
         journal(`y: ${y}`);
-        let actor = global.get_stage().get_actor_at_pos(0, x, y);
-        let window = actor.get_parent().get_meta_window();
+        let actor = global.get_stage().get_actor_at_pos(0, x, y).get_parent();
 
-        if (window.get_window_type() === Meta.WindowType.NORMAL) {
+        journal(`actor: ${actor}`);
+
+        if (!actor || !actor.meta_window) {
+            journal("No window found under pointer");
+            return;
+        }
+
+        let window = actor.get_meta_window();
+
+        if (window instanceof Meta.Window && window.get_window_type() === Meta.WindowType.NORMAL) {
             journal(`WinID: ${window.get_id()}`);
+            journal(`Win Title: ${window.get_title()}`);
             window.activate(0);
         }
     }
