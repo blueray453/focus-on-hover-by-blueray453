@@ -3,6 +3,8 @@ import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+
 import { setLogging, setLogFn, journal } from './utils.js'
 
 let activeWorkspaceChangedId;
@@ -68,7 +70,11 @@ export default class maximizeLonleyWindow extends Extension {
 
                 if (window.has_pointer()) {
                     journal(`Window Has Pointer`);
-                    window.activate(0);
+                    window.activate(global.get_current_time());
+                    Main.activateWindow(window);
+                    let win_workspace = window.get_workspace();
+                    // Here global.get_current_time() instead of 0 will also work
+                    win_workspace.activate_with_focus(window, 0);
                     journal(`Window Activated`);
                 }
 
@@ -79,6 +85,7 @@ export default class maximizeLonleyWindow extends Extension {
                 //     journal(`Window already focused`);
                 // }
             }
+            return GLib.SOURCE_REMOVE; // important to avoid repeated execution
         });
     }
 }
