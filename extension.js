@@ -58,6 +58,7 @@ export default class maximizeLonleyWindow extends Extension {
                     journal(`Window Has Pointer`);
                     window.activate(global.get_current_time());
                     window.raise();
+                    // window.raise_and_make_recent_on_workspace(p0);
                     // Main.activateWindow(window);
                     // let win_workspace = window.get_workspace();
                     // Here global.get_current_time() instead of 0 will also work
