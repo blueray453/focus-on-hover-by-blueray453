@@ -12,7 +12,7 @@ const WorkspaceManager = global.get_workspace_manager();
 
 export default class maximizeLonleyWindow extends Extension {
     enable() {
-        activeWorkspaceChangedId = WorkspaceManager.connect('workspace-switched', this.focusWindowUnderPointer.bind(this));
+        activeWorkspaceChangedId = WorkspaceManager.connect('workspace-switched', this.onWorkspaceChanged.bind(this));
 
         setLogFn((msg, error = false) => {
             let level;
@@ -44,23 +44,20 @@ export default class maximizeLonleyWindow extends Extension {
         WorkspaceManager.disconnect(activeWorkspaceChangedId);
     }
 
-    focusWindowUnderPointer() {
+    onWorkspaceChanged(wm, object, p0, p1) {
         GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-
-            // journal(`object is ${object}`);
-            // journal(`p0 is ${p0}`);
-            let active_workspace = WorkspaceManager.get_active_workspace();
-            // let active_workspace = wm.get_workspace_by_index(p0);
+            journal(`Workspace Changed`);
+            let active_workspace = wm.get_active_workspace();
             let wins = active_workspace.list_windows();
 
             journal(`Workspace Changed`);
 
             wins.forEach(window => {
+                journal(`Iterating over windows`);
                 if (window.has_pointer()) {
                     journal(`Window Has Pointer`);
                     window.activate(global.get_current_time());
                     window.raise();
-                    // window.raise_and_make_recent_on_workspace(p0);
                     // Main.activateWindow(window);
                     // let win_workspace = window.get_workspace();
                     // Here global.get_current_time() instead of 0 will also work
