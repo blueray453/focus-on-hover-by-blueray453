@@ -6,7 +6,7 @@ import { setLogging, setLogFn, journal } from './utils.js'
 
 let activeWorkspaceChangedId;
 
-// const Display = global.get_display();
+const Display = global.get_display();
 // const WindowManager = global.get_window_manager();
 const WorkspaceManager = global.get_workspace_manager();
 
@@ -45,10 +45,11 @@ export default class maximizeLonleyWindow extends Extension {
     }
 
     onWorkspaceChanged(wm, object, p0, p1) {
-        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        GLib.idle_add(GLib.PRIORITY_LOW, () => {
             journal(`Workspace Changed`);
             let active_workspace = wm.get_active_workspace();
             let wins = active_workspace.list_windows();
+            // let sorted_wins = Display.sort_windows_by_stacking(wins);
 
             journal(`Workspace Changed`);
 
