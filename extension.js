@@ -44,16 +44,16 @@ export default class maximizeLonleyWindow extends Extension {
         WorkspaceManager.disconnect(activeWorkspaceChangedId);
     }
 
-    onWorkspaceChanged(wm, object, p0, p1) {
+    onWorkspaceChanged() {
         GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             journal(`Workspace Changed`);
-            let active_workspace = wm.get_active_workspace();
+            let active_workspace = WorkspaceManager.get_active_workspace();
             let wins = active_workspace.list_windows();
-            // let sorted_wins = Display.sort_windows_by_stacking(wins);
+            let sorted_wins = Display.sort_windows_by_stacking(wins);
 
             journal(`Workspace Changed`);
 
-            wins.forEach(window => {
+            sorted_wins.forEach(window => {
                 journal(`Iterating over windows`);
                 if (window.has_pointer()) {
                     journal(`Window Has Pointer`);
