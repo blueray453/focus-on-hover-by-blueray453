@@ -12,7 +12,7 @@ const WorkspaceManager = global.get_workspace_manager();
 
 export default class maximizeLonleyWindow extends Extension {
     enable() {
-        activeWorkspaceChangedId = WorkspaceManager.connect('workspace-switched', this.onWorkspaceChanged.bind(this));
+        activeWorkspaceChangedId = WorkspaceManager.connect('workspace-switched', this.focusWindowUnderPointer.bind(this));
 
         setLogFn((msg, error = false) => {
             let level;
@@ -44,13 +44,13 @@ export default class maximizeLonleyWindow extends Extension {
         WorkspaceManager.disconnect(activeWorkspaceChangedId);
     }
 
-    onWorkspaceChanged(wm, object, p0, p1) {
+    focusWindowUnderPointer() {
         GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
 
-            journal(`object is ${object}`);
-            journal(`p0 is ${p0}`);
-            // let active_workspace = wm.get_active_workspace();
-            let active_workspace = wm.get_workspace_by_index(p0);
+            // journal(`object is ${object}`);
+            // journal(`p0 is ${p0}`);
+            let active_workspace = WorkspaceManager.get_active_workspace();
+            // let active_workspace = wm.get_workspace_by_index(p0);
             let wins = active_workspace.list_windows();
 
             journal(`Workspace Changed`);
