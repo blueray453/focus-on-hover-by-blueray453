@@ -9,11 +9,12 @@ let activeWorkspaceChangedId;
 const Display = global.get_display();
 // const WindowManager = global.get_window_manager();
 const WorkspaceManager = global.get_workspace_manager();
+const Stage = global.get_stage();
+
+let afterPaintId = null;
 
 export default class maximizeLonleyWindow extends Extension {
     enable() {
-        activeWorkspaceChangedId = WorkspaceManager.connect('workspace-switched', this.onWorkspaceChanged.bind(this));
-
         setLogFn((msg, error = false) => {
             let level;
             if (error) {
@@ -36,25 +37,38 @@ export default class maximizeLonleyWindow extends Extension {
 
         setLogging(true);
 
+        activeWorkspaceChangedId = WorkspaceManager.connect('workspace-switched', this.onWorkspaceChanged.bind(this));
+
+
         // journalctl -f -o cat SYSLOG_IDENTIFIER=focus-on-hover-by-blueray453
         journal(`Enabled`);
     }
 
     disable() {
         WorkspaceManager.disconnect(activeWorkspaceChangedId);
+
+        if (afterPaintId !== null) {
+            Stage.disconnect(afterPaintId);
+            afterPaintId = null;
+        }
     }
 
     onWorkspaceChanged() {
-        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+
+        // Avoid double registration
+        if (afterPaintId !== null)
+            Stage.disconnect(afterPaintId);
+
+        afterPaintId = Stage.connect('after-paint', () => {
             let [x, y] = global.get_pointer();
-            let window = global.get_stage().get_actor_at_pos(0, x, y).get_parent().get_meta_window();
+            let window = Stage.get_actor_at_pos(0, x, y).get_parent().get_meta_window();
 
             if (window.get_window_type() === 0) {
                 window.activate(global.get_current_time());
                 window.raise();
             }
-
-            return GLib.SOURCE_REMOVE; // important to avoid repeated execution
+            journal(`after-paint fired`);
+            Stage.disconnect(afterPaintId);
         });
 
         // GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
