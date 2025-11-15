@@ -46,62 +46,40 @@ export default class maximizeLonleyWindow extends Extension {
 
     onWorkspaceChanged() {
         GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            journal(`Workspace Changed`);
-            let active_workspace = WorkspaceManager.get_active_workspace();
-            let wins = active_workspace.list_windows();
-            let sorted_wins = Display.sort_windows_by_stacking(wins);
+            let [x, y] = global.get_pointer();
+            let window = global.get_stage().get_actor_at_pos(0, x, y).get_parent().get_meta_window();
 
-            journal(`Workspace Changed`);
-
-            sorted_wins.forEach(window => {
-                journal(`Iterating over windows`);
-                if (window.has_pointer()) {
-                    journal(`Window Has Pointer`);
-                    window.activate(global.get_current_time());
-                    window.raise();
-                    // Main.activateWindow(window);
-                    // let win_workspace = window.get_workspace();
-                    // Here global.get_current_time() instead of 0 will also work
-                    // win_workspace.activate_with_focus(window, 0);
-                    journal(`Window Activated`);
-                }
-            });
-
-            // journal(`Workspace Changed`);
-            // let [x, y] = global.get_pointer();
-            // journal(`x: ${x}`);
-            // journal(`y: ${y}`);
-            // let window = global.get_stage().get_actor_at_pos(0, x, y).get_parent().get_meta_window();
-
-            // journal(`window: ${window}`);
-
-            // if (window instanceof Meta.Window && window.get_window_type() === 0) {
-            //     // let current_workspace = WorkspaceManager.get_active_workspace();
-            //     journal(`WinID: ${window.get_id()}`);
-            //     journal(`Win Title: ${window.get_title()}`);
-
-
-            //     journal(`Window Has Pointer`);
-            //     window.activate(global.get_current_time());
-            //     // Main.activateWindow(window);
-            //     // let win_workspace = window.get_workspace();
-            //     // // Here global.get_current_time() instead of 0 will also work
-            //     // win_workspace.activate_with_focus(window, 0);
-            //     journal(`Window Activated`);
-
-            //     // if (!window.has_focus()){
-            //     //     journal(`Window not Focused`);
-            //     //     window.activate(0);
-            //     // } else {
-            //     //     journal(`Window already focused`);
-            //     // }
-            // }
-
-
+            if (window.get_window_type() === 0) {
+                window.activate(global.get_current_time());
+                window.raise();
+            }
 
             return GLib.SOURCE_REMOVE; // important to avoid repeated execution
         });
 
+        // GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        //     journal(`Workspace Changed`);
+        //     let active_workspace = WorkspaceManager.get_active_workspace();
+        //     let wins = active_workspace.list_windows();
+        //     let sorted_wins = Display.sort_windows_by_stacking(wins);
 
+        //     journal(`Workspace Changed`);
+
+        //     sorted_wins.forEach(window => {
+        //         journal(`Iterating over windows`);
+        //         if (window.has_pointer()) {
+        //             journal(`Window Has Pointer`);
+        //             window.activate(global.get_current_time());
+        //             window.raise();
+        //             // Main.activateWindow(window);
+        //             // let win_workspace = window.get_workspace();
+        //             // Here global.get_current_time() instead of 0 will also work
+        //             // win_workspace.activate_with_focus(window, 0);
+        //             journal(`Window Activated`);
+        //         }
+        //     });
+
+        //     return GLib.SOURCE_REMOVE; // important to avoid repeated execution
+        // });
     }
 }
