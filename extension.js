@@ -54,7 +54,6 @@ export default class maximizeLonleyWindow extends Extension {
     }
 
     onWorkspaceChanged() {
-
         // Avoid double registration
         if (afterPaintId !== null)
             Stage.disconnect(afterPaintId);
