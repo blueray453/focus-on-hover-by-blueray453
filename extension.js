@@ -34,11 +34,9 @@ export default class maximizeLonleyWindow extends Extension {
             );
         });
 
-
         setLogging(true);
 
         activeWorkspaceChangedId = WorkspaceManager.connect('workspace-switched', this.onWorkspaceChanged.bind(this));
-
 
         // journalctl -f -o cat SYSLOG_IDENTIFIER=focus-on-hover-by-blueray453
         journal(`Enabled`);
